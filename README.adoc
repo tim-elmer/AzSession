@@ -1,13 +1,15 @@
 = AzSession
 :toc: Left
 :source-language: powershell
+:type-string: https://docs.microsoft.com/en-us/dotnet/api/system.string[String]
+:type-pssession: https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.pssession[PSSession]
+:cmdlet-remove-pssession: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/remove-pssession[Remove-PSSession]
+:example-create: [System.Management.Automation.Runspaces.PSSession] $Session = Get-AzSession -ResourceGroup 'contoso-sql' -UserName 'someone@contoso.com' -VmName 'contoso-sql01'
 
 Reference
-Module: xref:README.adoc[]
+Module: xref:README.adoc[AzSession]
 
-Creates a 
-include::_include.adoc[tag=type-pssession]
-to an Azure Virtual Machine.
+Creates a {type-pssession} to an Azure Virtual Machine.
 
 == Syntax
 [source, powershell]
@@ -45,52 +47,52 @@ This module facilitates "fixing" this configuration conflict seamlessly for the 
 NOTE: For obvious reasons, other SSH sessions that rely on the user's SSH configuration cannot be created while this module is working. Existing sessions will continue to function as expected.
 
 == Examples
-.Create a reusable PSSession
+.Create a reusable {type-pssession}
 ====
-[source, indent=0]
+[source, subs=attributes]
 ----
-include::AzSession.psm1[tag=create]
-----
-====
-
-. Connect to a created PSSession
-====
-[source, indent=0]
-----
-include::AzSession.psm1[tag=create]
-
-include::AzSession.psm1[tag=enter]
+{example-create}
 ----
 ====
 
-. Copy files to a created PSSession
+. Connect to a created {type-pssession}
 ====
-[source, indent=0]
+[source, subs=attributes]
 ----
-include::AzSession.psm1[tag=create]
+{example-create}
 
-include::AzSession.psm1[tag=copy-to]
+Enter-PSSession $Session
 ----
 ====
 
-. Copy files from a created PSSession
+. Copy files to a created {type-pssession}
 ====
-[source, indent=0]
+[source, subs=attributes]
 ----
-include::AzSession.psm1[tag=create]
+{example-create}
 
-include::AzSession.psm1[tag=copy-from]
+Copy-Item -Path '/home/someone/lqs.sql' -ToSession $Session -Destination '/var/tmp/'
+----
+====
+
+. Copy files from a created {type-pssession}
+====
+[source, subs=attributes]
+----
+{example-create}
+
+Copy-Item -FromSession $Session -Path '/var/log/fire.log' -Destination '/home/someone/logs'
 ----
 ====
 
 == Parameters
 [discrete]
 === `-ResourceGroup`
-include::AzSession.psm1[tag=resourceGroup, indent=0]
+Specifies the Azure Resource Group in which the target Virtual Machine resides.
 
 [cols="h,a"]
 |===
-| Type | include::_include.adoc[tag=type-string]
+| Type | {type-string}
 | Position | Named
 | Default Value | None
 | Accept Pipeline Input | False
@@ -99,11 +101,11 @@ include::AzSession.psm1[tag=resourceGroup, indent=0]
 
 [discrete]
 === `-UserName`
-include::AzSession.psm1[tag=userName, indent=0]
+Your Azure AD username. Defaults to executing user if not set.
 
 [cols="h,a"]
 |===
-| Type | include::_include.adoc[tag=type-string]
+| Type | {type-string}
 | Position | Named
 | Default Value | Executing user's username
 | Accept Pipeline Input | False
@@ -112,11 +114,11 @@ include::AzSession.psm1[tag=userName, indent=0]
 
 [discrete]
 === `-VmName`
-include::AzSession.psm1[tag=vmName, indent=0]
+Specifies the name of the target Virtual Machine in Azure.
 
 [cols="h,a"]
 |===
-| Type | include::_include.adoc[tag=type-string]
+| Type | {type-string}
 | Position | Named
 | Default Value | None
 | Accept Pipeline Input | False
@@ -127,19 +129,13 @@ include::AzSession.psm1[tag=vmName, indent=0]
 None
 
 == Outputs
-include::_include.adoc[tag=type-pssession]
+{type-pssession}
 
 == Notes
 * This module assumes the following:
 ** The target Virtual Machine has a public IP address.
 ** The target Virtual Machine's first public IP address can be used for SSH connections.
-* When you are finished with the
-include::_include.adoc[tag=type-pssession]
-, use the
-include::_include.adoc[tag=cmdlet-remove-pssession]
-cmdlet to delete the
-include::_include.adoc[tag=type-pssession]
-and release its resources.
+* When you are finished with the {type-pssession}, use the {cmdlet-remove-pssession} cmdlet to delete the {type-pssession} and release its resources.
 
 == Related Links
 * https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/connect-pssession[Connect-PSSession]
@@ -148,6 +144,5 @@ and release its resources.
 * https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/exit-pssession[Exit-PSSession]
 * https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command[Invoke-Command]
 * https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/receive-pssession[Recieve-PSSession]
-* {empty}
-include::_include.adoc[tag=cmdlet-remove-pssession]
+* {cmdlet-remove-pssession}
 * https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pssessions[About PSSessions]

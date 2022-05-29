@@ -87,7 +87,7 @@ AliasesToExport = @()
 # ModuleList = @()
 
 # List of all files packaged with this module
-FileList = @('./AzSession.psd1', './AzSession.psm1', './README.adoc', './_include.adoc', './LICENSE.adoc')
+FileList = @('./AzSession.psd1', './AzSession.psm1', './README.adoc', './LICENSE.adoc')
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{

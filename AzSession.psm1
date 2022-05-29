@@ -5,43 +5,29 @@ using namespace System.Management.Automation.Runspaces
     Creates a PSSession on an Azure VM.
 
     .PARAMETER ResourceGroup
-    tag::resourceGroup[]
     Specifies the Azure Resource Group in which the target Virtual Machine resides.
-    end::resourceGroup[]
 
     .PARAMETER UserName
-    tag::userName[]
     Your Azure AD username. Defaults to executing user if not set.
-    end::userName[]
 
     .PARAMETER VmName
-    tag::vmName[]
     Specifies the name of the target Virtual Machine in Azure.
-    end::vmName[]
 
     .EXAMPLE
     # Create a reusable PSSession
-    # tag::create[]
     [System.Management.Automation.Runspaces.PSSession] $Session = Get-AzSession -ResourceGroup 'contoso-sql' -UserName 'someone@contoso.com' -VmName 'contoso-sql01'
-    # end::create[]
 
     .EXAMPLE
     # Connect to a created PSSession
-    # tag::enter[]
     Enter-PSSession $Session
-    # end::enter[]
 
     .EXAMPLE
     # Copy files to a created PSSession
-    # tag::copy-to[]
     Copy-Item -Path '/home/someone/lqs.sql' -ToSession $Session -Destination '/var/tmp/'
-    # end::copy-to[]
     
     .EXAMPLE
     # Copy files from a created PSSession
-    # tag::copy-from[]
     Copy-Item -FromSession $Session -Path '/var/log/fire.log' -Destination '/home/someone/logs'
-    # end::copy-from[]
 #>
 function Get-AzSession {
     param (
