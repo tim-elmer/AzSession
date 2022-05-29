@@ -1,0 +1,153 @@
+= AzSession
+:toc: Left
+:source-language: powershell
+
+Reference
+Module: xref:README.adoc[]
+
+Creates a 
+include::_include.adoc[tag=type-pssession]
+to an Azure Virtual Machine.
+
+== Syntax
+[source, powershell]
+----
+Get-AzSession
+    -ResourceGroup <String>
+    -VmName <String>
+    [-UserName <String>]
+    [<Common Parameters>]
+----
+
+== Description
+Microsoft has introduced a pretty cool feature where you can use Azure Active Directory credentials for AAA against a Linux virtual machine (see https://docs.microsoft.com/en-us/azure/active-directory/devices/howto-vm-sign-in-azure-ad-linux[Microsoft Docs^] for more information). Getting signed in the first time is a bit cumbersome, but in my opinion worth it for the convenience and security.
+
+There is, however, a _massive_ caveat: you can no longer (trivially) SSH to the machine in an external client, as the AZAD sign-in flow generates an ephemeral key pair on the VM for you, and requires interop with AZAD to do so. The Azure CLI PowerShell module _does_ offer a means to export a key, but due to its ephemeral nature, you can only use it for around an hour:
+
+[source]
+----
+az ssh config --file '~./ssh/config' -n vmName -g resourceGroupName
+----
+
+This works fine with OpenSSH and anything that can either read its default configuration (`~./ssh/config`) or take a configuration file as an argument. 
+
+However, exporting the config file to the default location won't work if you already have a configuration file (presumably to prevent clobbering the user's settings). Inconveniently, my best friend xref:https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/new-pssession[New-PSSession] doesn't take a configuration file from the command line, so I had to find a work-around.
+
+This module facilitates "fixing" this configuration conflict seamlessly for the end-user:
+
+. Temporarily rename the user's SSH configuration.
+. Generate the ephemeral keys for the connection and associated configuration via xref:https://docs.microsoft.com/en-us/cli/azure/ssh#az-ssh-config[az ssh config].
+. Copy the ephemeral configuration and keys to the default location.
+. Create a session with the VM.
+. Delete the ephemeral keys and configuration.
+. Restore the user's configuration.
+
+NOTE: For obvious reasons, other SSH sessions that rely on the user's SSH configuration cannot be created while this module is working. Existing sessions will continue to function as expected.
+
+== Examples
+.Create a reusable PSSession
+====
+[source, indent=0]
+----
+include::AzSession.psm1[tag=create]
+----
+====
+
+. Connect to a created PSSession
+====
+[source, indent=0]
+----
+include::AzSession.psm1[tag=create]
+
+include::AzSession.psm1[tag=enter]
+----
+====
+
+. Copy files to a created PSSession
+====
+[source, indent=0]
+----
+include::AzSession.psm1[tag=create]
+
+include::AzSession.psm1[tag=copy-to]
+----
+====
+
+. Copy files from a created PSSession
+====
+[source, indent=0]
+----
+include::AzSession.psm1[tag=create]
+
+include::AzSession.psm1[tag=copy-from]
+----
+====
+
+== Parameters
+[discrete]
+=== `-ResourceGroup`
+include::AzSession.psm1[tag=resourceGroup, indent=0]
+
+[cols="h,a"]
+|===
+| Type | include::_include.adoc[tag=type-string]
+| Position | Named
+| Default Value | None
+| Accept Pipeline Input | False
+| Accept Wildcard Characters | False
+|===
+
+[discrete]
+=== `-UserName`
+include::AzSession.psm1[tag=userName, indent=0]
+
+[cols="h,a"]
+|===
+| Type | include::_include.adoc[tag=type-string]
+| Position | Named
+| Default Value | Executing user's username
+| Accept Pipeline Input | False
+| Accept Wildcard Characters | False
+|===
+
+[discrete]
+=== `-VmName`
+include::AzSession.psm1[tag=vmName, indent=0]
+
+[cols="h,a"]
+|===
+| Type | include::_include.adoc[tag=type-string]
+| Position | Named
+| Default Value | None
+| Accept Pipeline Input | False
+| Accept Wildcard Characters | False
+|===
+
+== Inputs
+None
+
+== Outputs
+include::_include.adoc[tag=type-pssession]
+
+== Notes
+* This module assumes the following:
+** The target Virtual Machine has a public IP address.
+** The target Virtual Machine's first public IP address can be used for SSH connections.
+* When you are finished with the
+include::_include.adoc[tag=type-pssession]
+, use the
+include::_include.adoc[tag=cmdlet-remove-pssession]
+cmdlet to delete the
+include::_include.adoc[tag=type-pssession]
+and release its resources.
+
+== Related Links
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/connect-pssession[Connect-PSSession]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/disconnect-pssession[Disconnect-PSSession]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/enter-pssession[Enter-PSSession]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/exit-pssession[Exit-PSSession]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command[Invoke-Command]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/receive-pssession[Recieve-PSSession]
+* {empty}
+include::_include.adoc[tag=cmdlet-remove-pssession]
+* https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pssessions[About PSSessions]
