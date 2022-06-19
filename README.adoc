@@ -11,6 +11,8 @@ Module: xref:README.adoc[AzSession]
 
 Creates a {type-pssession} to an Azure Virtual Machine.
 
+IMPORTANT: This module requires the https://docs.microsoft.com/en-us/cli/azure/[Azure CLI].
+
 == Syntax
 [source, powershell]
 ----

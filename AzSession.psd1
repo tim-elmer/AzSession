@@ -15,7 +15,7 @@ RootModule = './AzSession.psm1'
 ModuleVersion = '1.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @('core')
 
 # ID used to uniquely identify this module
 GUID = '54c9b5a7-4eef-43ee-a2eb-cfdc09e27e60'
@@ -116,7 +116,7 @@ PrivateData = @{
         # RequireLicenseAcceptance = $false
 
         # External dependent modules of this module
-        # ExternalModuleDependencies = @()
+        ExternalModuleDependencies = @('Az')
 
     } # End of PSData hashtable
 
